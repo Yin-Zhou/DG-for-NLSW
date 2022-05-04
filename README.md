@@ -8,6 +8,7 @@ Time discretization: strong stability preseving runge kutta methods, five stage 
 2. linear case: initial condition 0, convergence study
 3. nonlinear case: beta coefficient
 4. nonlinear case: capture the oscillation
+5. nonlinear case: with analytical solution
 
 ## Two-dimensional case
 1. linear case: wave equation
