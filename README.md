@@ -11,5 +11,5 @@ Time discretization: strong stability preseving runge kutta methods, five stage 
 5. nonlinear case: with analytical solution
 
 ## Two-dimensional case
-1. linear case: wave equation
+1. linear case: central flux
 
