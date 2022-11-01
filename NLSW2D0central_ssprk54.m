@@ -1,4 +1,4 @@
-function [xloc,yloc,err_ureal,err_uimag,err_vreal,err_vimag] = NLSW2D0sommer_ssprk54(qx,qy,Nx,Ny,T)
+function [xloc,yloc,err_ureal,err_uimag,err_vreal,err_vimag] = NLSW2D0central_ssprk54(qx,qy,Nx,Ny,T)
 
 % Solve u_tt - 1/2(u_xx + u_yy) + iu_t + u = 0 in 2D 0 < x < 2pi
 % 0 < y < 2pi by DG
@@ -12,7 +12,7 @@ function [xloc,yloc,err_ureal,err_uimag,err_vreal,err_vimag] = NLSW2D0sommer_ssp
 % Nx = number of cells in x-axis
 % Ny = number of cells in y-axis
 % T is the simulation time
-% sommerfield flux
+% central flux
 
 % set up the grid
 
@@ -249,52 +249,54 @@ for i=1:Nx
         
         ucloc_real(:,(i-1)*Ny+j) = (P*u_real(:,(i-1)*Ny+j)) + cosine;
         ucloc_imag(:,(i-1)*Ny+j) = (P*u_imag(:,(i-1)*Ny+j)) + sine;
-        
+
         vcloc_real(:,(i-1)*Ny+j) = (P*v_real(:,(i-1)*Ny+j));
         vcloc_imag(:,(i-1)*Ny+j) = (P*v_imag(:,(i-1)*Ny+j));
         
         err_ureal = err_ureal + (hx(i)/2)*(hy(j)/2)*((ucloc_real(:,(i-1)*Ny+j) - ...
             utrue_real(:,(i-1)*Ny+j)))'*(W)*(ucloc_real(:,(i-1)*Ny+j) - utrue_real(:,(i-1)*Ny+j));
+
         err_uimag = err_uimag + (hx(i)/2)*(hy(j)/2)*((ucloc_imag(:,(i-1)*Ny+j) - ...
             utrue_imag(:,(i-1)*Ny+j)))'*(W)*(ucloc_imag(:,(i-1)*Ny+j) - utrue_imag(:,(i-1)*Ny+j));
-        
+
         err_vreal = err_vreal + (hx(i)/2)*(hy(j)/2)*((vcloc_real(:,(i-1)*Ny+j) - ...
             vtrue_real(:,(i-1)*Ny+j)))'*(W)*(vcloc_real(:,(i-1)*Ny+j) - vtrue_real(:,(i-1)*Ny+j));
+
         err_vimag = err_vimag + (hx(i)/2)*(hy(j)/2)*((vcloc_imag(:,(i-1)*Ny+j) - ...
             vtrue_imag(:,(i-1)*Ny+j)))'*(W)*(vcloc_imag(:,(i-1)*Ny+j) - vtrue_imag(:,(i-1)*Ny+j));
     end
 end
 
-fprintf('u real L2 error = %4.12e \n',sqrt(err_ureal));
-fprintf('u imag L2 error = %4.12e \n',sqrt(err_uimag));
-fprintf('v real L2 error = %4.12e \n',sqrt(err_vreal));
-fprintf('v imag L2 error = %4.12e \n',sqrt(err_vimag));
+fprintf('u real L2 error = %4.3e \n',sqrt(err_ureal));
+fprintf('u imag L2 error = %4.3e \n',sqrt(err_uimag));
+fprintf('v real L2 error = %4.3e \n',sqrt(err_vreal));
+fprintf('v imag L2 error = %4.3e \n',sqrt(err_vimag));
 
-% plot_ureal = P*u_real;
-% plot_ureal_reshape = zeros((qx+1)*(qy+1),Nx*Ny);
-% for j=1:Ny
-%     for i=1:Nx
-%         plot_ureal_reshape(:,(j-1)*Ny+i) = plot_ureal(:,(i-1)*Ny+j);
-%     end
-% end
-% plot_z = zeros((qx+1)*Nx,(qy+1)*Ny);
-% for j=1:Ny
-%     for i=1:Nx
-%         for k=1:(qy+1)
-%             new = plot_ureal_reshape(k,(j-1)*Nx+i);
-%             for l=2:(qx+1)
-%                 new(l) = plot_ureal_reshape(k+(l-1)*(qy+1),(j-1)*Nx+i);
-%             end
-%             plot_z(((i-1)*(qx+1)+1):((i-1)*(qx+1)+qx+1), (j-1)*(qy+1)+k) = new;
-%         end
-%     end
-% end
-% plot_x = reshape(xloc,[],1);
-% plot_y = reshape(yloc,[],1);
-% [X, Y] = meshgrid(plot_x, plot_y);
-% mesh(X, Y, plot_z);
-% colorbar
-% title('result')
+%plot_ureal = P*u_real;
+%plot_ureal_reshape = zeros((qx+1)*(qy+1),Nx*Ny);
+%for j=1:Ny
+%    for i=1:Nx
+%        plot_ureal_reshape(:,(j-1)*Ny+i) = plot_ureal(:,(i-1)*Ny+j);
+%    end
+%end
+%plot_z = zeros((qx+1)*Nx,(qy+1)*Ny);
+%for j=1:Ny
+%    for i=1:Nx
+%        for k=1:(qy+1)
+%            new = plot_ureal_reshape(k,(j-1)*Nx+i);
+%            for l=2:(qx+1)
+%                new(l) = plot_ureal_reshape(k+(l-1)*(qy+1),(j-1)*Nx+i);
+%            end
+%            plot_z(((i-1)*(qx+1)+1):((i-1)*(qx+1)+qx+1), (j-1)*(qy+1)+k) = new;
+%        end
+%    end
+%end
+%plot_x = reshape(xloc,[],1);
+%plot_y = reshape(yloc,[],1);
+%[X, Y] = meshgrid(plot_x, plot_y);
+%mesh(X, Y, plot_z);
+%colorbar
+%title('result')
 
 end
 
@@ -370,7 +372,7 @@ for i=1:Nx
         vt_real(:,(i-1)*Ny+j) = vt_real(:,(i-1)*Ny+j) - (P')*W*2*cosine;
         vt_imag(:,(i-1)*Ny+j) = vt_imag(:,(i-1)*Ny+j) - (P')*W*2*sine;
         
-        % sommerfield flux: star = (local+out)/2 + jump
+        % central flux: star = (local+out)/2
         % periodic BC
         % (i-1)*Ny + j
         if (j==1) % out corresponds to j == Ny (i-1)*Ny + Ny south side
@@ -386,24 +388,16 @@ for i=1:Nx
         end
             
         Fu_real = - (1/2) * kron(eye(qx+1), (Uxb_y(1,:)'*Vb_y(1,:)))*(-vreal_local)...
-                  - (1/2) * kron(eye(qx+1), (Uxb_y(1,:)'*Vb_y(2,:)))*( vreal_out)...
-                  - (1/2) * (2/hy(j)) * kron(eye(qx+1), (Uxb_y(1,:)'*Uxb_y(1,:)))*( ureal_local)...
-                  + (1/2) * (2/hy(j)) * kron(eye(qx+1), (Uxb_y(1,:)'*Uxb_y(2,:)))*( ureal_out);
+                  - (1/2) * kron(eye(qx+1), (Uxb_y(1,:)'*Vb_y(2,:)))*( vreal_out);
               
         Fu_imag = - (1/2) * kron(eye(qx+1), (Uxb_y(1,:)'*Vb_y(1,:)))*(-vimag_local)...
-                  - (1/2) * kron(eye(qx+1), (Uxb_y(1,:)'*Vb_y(2,:)))*( vimag_out)...
-                  - (1/2) * (2/hy(j)) * kron(eye(qx+1), (Uxb_y(1,:)'*Uxb_y(1,:)))*( uimag_local)...
-                  + (1/2) * (2/hy(j)) * kron(eye(qx+1), (Uxb_y(1,:)'*Uxb_y(2,:)))*( uimag_out);
+                  - (1/2) * kron(eye(qx+1), (Uxb_y(1,:)'*Vb_y(2,:)))*( vimag_out);
        
         Fv_real = - (1/2) * kron(eye(qx+1), (Vb_y(1,:)'*Uxb_y(1,:)))*(ureal_local)...
-                  - (1/2) * kron(eye(qx+1), (Vb_y(1,:)'*Uxb_y(2,:)))*(ureal_out)...
-                  - (1/2) * (hx(i)/2) * kron(eye(qx+1), (Vb_y(1,:)'*Vb_y(1,:)))*(vreal_local)...
-                  + (1/2) * (hx(i)/2) * kron(eye(qx+1), (Vb_y(1,:)'*Vb_y(2,:)))*(vreal_out);
+                  - (1/2) * kron(eye(qx+1), (Vb_y(1,:)'*Uxb_y(2,:)))*(ureal_out);
         
         Fv_imag = - (1/2) * kron(eye(qx+1), (Vb_y(1,:)'*Uxb_y(1,:)))*(uimag_local)...
-                  - (1/2) * kron(eye(qx+1), (Vb_y(1,:)'*Uxb_y(2,:)))*(uimag_out)...
-                  - (1/2) * (hx(i)/2) * kron(eye(qx+1), (Vb_y(1,:)'*Vb_y(1,:)))*(vimag_local)...
-                  + (1/2) * (hx(i)/2) * kron(eye(qx+1), (Vb_y(1,:)'*Vb_y(2,:)))*(vimag_out);
+                  - (1/2) * kron(eye(qx+1), (Vb_y(1,:)'*Uxb_y(2,:)))*(uimag_out);
          
         if (j==Ny) % out corresponds to j == 1 north side
            vreal_out = v_real(:, (i-1)*Ny + 1);
@@ -419,23 +413,15 @@ for i=1:Nx
         
         Fu_real = Fu_real + (1/2) * kron(eye(qx+1), (Uxb_y(2,:)'*Vb_y(2,:)))*(-vreal_local);
         Fu_real = Fu_real + (1/2) * kron(eye(qx+1), (Uxb_y(2,:)'*Vb_y(1,:)))*( vreal_out);
-        Fu_real = Fu_real - (1/2) * (2/hy(j)) * kron(eye(qx+1), (Uxb_y(2,:)'*Uxb_y(2,:)))*( ureal_local);
-        Fu_real = Fu_real + (1/2) * (2/hy(j)) * kron(eye(qx+1), (Uxb_y(2,:)'*Uxb_y(1,:)))*( ureal_out);
                 
         Fu_imag = Fu_imag + (1/2) * kron(eye(qx+1), (Uxb_y(2,:)'*Vb_y(2,:)))*(-vimag_local);
         Fu_imag = Fu_imag + (1/2) * kron(eye(qx+1), (Uxb_y(2,:)'*Vb_y(1,:)))*( vimag_out);
-        Fu_imag = Fu_imag - (1/2) * (2/hy(j)) * kron(eye(qx+1), (Uxb_y(2,:)'*Uxb_y(2,:)))*( uimag_local);
-        Fu_imag = Fu_imag + (1/2) * (2/hy(j)) * kron(eye(qx+1), (Uxb_y(2,:)'*Uxb_y(1,:)))*( uimag_out);
         
         Fv_real = Fv_real + (1/2) * kron(eye(qx+1), (Vb_y(2,:)'*Uxb_y(2,:)))*(ureal_local);
         Fv_real = Fv_real + (1/2) * kron(eye(qx+1), (Vb_y(2,:)'*Uxb_y(1,:)))*(ureal_out);
-        Fv_real = Fv_real - (1/2) * (hx(i)/2) * kron(eye(qx+1), (Vb_y(2,:)'*Vb_y(2,:)))*(vreal_local);
-        Fv_real = Fv_real + (1/2) * (hx(i)/2) * kron(eye(qx+1), (Vb_y(2,:)'*Vb_y(1,:)))*(vreal_out);
 
         Fv_imag = Fv_imag + (1/2) * kron(eye(qx+1), (Vb_y(2,:)'*Uxb_y(2,:)))*(uimag_local);
         Fv_imag = Fv_imag + (1/2) * kron(eye(qx+1), (Vb_y(2,:)'*Uxb_y(1,:)))*(uimag_out);
-        Fv_imag = Fv_imag - (1/2) * (hx(i)/2) * kron(eye(qx+1), (Vb_y(2,:)'*Vb_y(2,:)))*(vimag_local);
-        Fv_imag = Fv_imag + (1/2) * (hx(i)/2) * kron(eye(qx+1), (Vb_y(2,:)'*Vb_y(1,:)))*(vimag_out);
         
         if (i==1) % out corresponds to i = Nx west side
            vreal_out = v_real(:, (Nx-1)*Ny + j);
@@ -451,23 +437,15 @@ for i=1:Nx
         
         Fu_real = Fu_real - (1/2) * kron((Uxb_x(1,:)'*Vb_x(1,:)), eye(qy+1))*(-vreal_local);
         Fu_real = Fu_real - (1/2) * kron((Uxb_x(1,:)'*Vb_x(2,:)), eye(qy+1))*( vreal_out);
-        Fu_real = Fu_real - (1/2) * (2/hx(i)) * kron((Uxb_x(1,:)'*Uxb_x(1,:)), eye(qy+1))*( ureal_local);
-        Fu_real = Fu_real + (1/2) * (2/hx(i)) * kron((Uxb_x(1,:)'*Uxb_x(2,:)), eye(qy+1))*( ureal_out);
       
         Fu_imag = Fu_imag - (1/2) * kron((Uxb_x(1,:)'*Vb_x(1,:)), eye(qy+1))*(-vimag_local);
         Fu_imag = Fu_imag - (1/2) * kron((Uxb_x(1,:)'*Vb_x(2,:)), eye(qy+1))*( vimag_out);
-        Fu_imag = Fu_imag - (1/2) * (2/hx(i)) * kron((Uxb_x(1,:)'*Uxb_x(1,:)), eye(qy+1))*( uimag_local);
-        Fu_imag = Fu_imag + (1/2) * (2/hx(i)) * kron((Uxb_x(1,:)'*Uxb_x(2,:)), eye(qy+1))*( uimag_out);
         
         Fv_real = Fv_real - (1/2) * kron((Vb_x(1,:)'*Uxb_x(1,:)), eye(qy+1))*(ureal_local);
         Fv_real = Fv_real - (1/2) * kron((Vb_x(1,:)'*Uxb_x(2,:)), eye(qy+1))*(ureal_out);
-        Fv_real = Fv_real - (1/2) * (hy(j)/2) * kron((Vb_x(1,:)'*Vb_x(1,:)), eye(qy+1))*(vreal_local);
-        Fv_real = Fv_real + (1/2) * (hy(j)/2) * kron((Vb_x(1,:)'*Vb_x(2,:)), eye(qy+1))*(vreal_out);
 
         Fv_imag = Fv_imag - (1/2) * kron((Vb_x(1,:)'*Uxb_x(1,:)), eye(qy+1))*(uimag_local);
         Fv_imag = Fv_imag - (1/2) * kron((Vb_x(1,:)'*Uxb_x(2,:)), eye(qy+1))*(uimag_out);
-        Fv_imag = Fv_imag - (1/2) * (hy(j)/2) * kron((Vb_x(1,:)'*Vb_x(1,:)), eye(qy+1))*(vimag_local);
-        Fv_imag = Fv_imag + (1/2) * (hy(j)/2) * kron((Vb_x(1,:)'*Vb_x(2,:)), eye(qy+1))*(vimag_out);
         
         if (i==Nx) % out corresponds to i = 1 east side
            vreal_out = v_real(:, j);
@@ -483,23 +461,15 @@ for i=1:Nx
         
         Fu_real = Fu_real + (1/2) * kron((Uxb_x(2,:)'*Vb_x(2,:)), eye(qy+1))*(-vreal_local);
         Fu_real = Fu_real + (1/2) * kron((Uxb_x(2,:)'*Vb_x(1,:)), eye(qy+1))*( vreal_out);
-        Fu_real = Fu_real - (1/2) * (2/hx(i)) * kron((Uxb_x(2,:)'*Uxb_x(2,:)), eye(qy+1))*( ureal_local);
-        Fu_real = Fu_real + (1/2) * (2/hx(i)) * kron((Uxb_x(2,:)'*Uxb_x(1,:)), eye(qy+1))*( ureal_out);
        
         Fu_imag = Fu_imag + (1/2) * kron((Uxb_x(2,:)'*Vb_x(2,:)), eye(qy+1))*(-vimag_local);
         Fu_imag = Fu_imag + (1/2) * kron((Uxb_x(2,:)'*Vb_x(1,:)), eye(qy+1))*( vimag_out);
-        Fu_imag = Fu_imag - (1/2) * (2/hx(i)) * kron((Uxb_x(2,:)'*Uxb_x(2,:)), eye(qy+1))*( uimag_local);
-        Fu_imag = Fu_imag + (1/2) * (2/hx(i)) * kron((Uxb_x(2,:)'*Uxb_x(1,:)), eye(qy+1))*( uimag_out);
         
         Fv_real = Fv_real + (1/2) * kron((Vb_x(2,:)'*Uxb_x(2,:)), eye(qy+1))*(ureal_local);
         Fv_real = Fv_real + (1/2) * kron((Vb_x(2,:)'*Uxb_x(1,:)), eye(qy+1))*(ureal_out);
-        Fv_real = Fv_real - (1/2) * (hy(j)/2) * kron((Vb_x(2,:)'*Vb_x(2,:)), eye(qy+1))*(vreal_local);
-        Fv_real = Fv_real + (1/2) * (hy(j)/2) * kron((Vb_x(2,:)'*Vb_x(1,:)), eye(qy+1))*(vreal_out);
 
         Fv_imag = Fv_imag + (1/2) * kron((Vb_x(2,:)'*Uxb_x(2,:)), eye(qy+1))*(uimag_local);
         Fv_imag = Fv_imag + (1/2) * kron((Vb_x(2,:)'*Uxb_x(1,:)), eye(qy+1))*(uimag_out);
-        Fv_imag = Fv_imag - (1/2) * (hy(j)/2) * kron((Vb_x(2,:)'*Vb_x(2,:)), eye(qy+1))*(vimag_local);
-        Fv_imag = Fv_imag + (1/2) * (hy(j)/2) * kron((Vb_x(2,:)'*Vb_x(1,:)), eye(qy+1))*(vimag_out);
 
         ut_real(:,(i-1)*Ny+j) = ut_real(:,(i-1)*Ny+j) + Mu\((1/2)*Fu_real);
         ut_imag(:,(i-1)*Ny+j) = ut_imag(:,(i-1)*Ny+j) + Mu\((1/2)*Fu_imag);
